@@ -85,10 +85,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        LatLng point = new LatLng(checkpoints.get(0).getLatitude(), checkpoints.get(0).getLongitude());
+
+        LatLng point;
 
         BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_place_white_18dp);
-
+        Checkpoint firstCheckpoint = checkpoints.get(0);
+        Checkpoint lastCheckpoint = checkpoints.get(checkpoints.size() - 1);
         for (Checkpoint ch : checkpoints) {
             point = new LatLng(ch.getLatitude(), ch.getLongitude());
             rectOptions.add(point).width(18).color(Color.BLUE).geodesic(false);
@@ -96,8 +98,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             googleMap.addMarker(new MarkerOptions()
                     .position(point)
                     .title(ch.getName())
-            .icon(icon));
+                    .icon(icon));
         }
+
+        point = new LatLng(firstCheckpoint.getLatitude(), firstCheckpoint.getLongitude());
+        rectOptions.add(point).width(18).color(Color.BLUE).geodesic(false);
+        point = new LatLng(lastCheckpoint.getLatitude(), lastCheckpoint.getLongitude());
+        rectOptions.add(point).width(18).color(Color.BLUE).geodesic(false);
 
         Dao<Object, Integer> objectDao = null;
         List<Object> objects = new ArrayList<>(0);
@@ -117,13 +124,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         for (Object o : objects) {
             if (o.getLatitude() != null && o.getLongitude() != null) {
-                if(mMarkerHashMap != null && !mMarkerHashMap.isEmpty()){
+                if (mMarkerHashMap != null && !mMarkerHashMap.isEmpty()) {
                     Marker m = mMarkerHashMap.get(o.getCarNumber());
-                    if(m != null) {
+                    if (m != null) {
                         m.remove();
                         mMarkerHashMap.remove(o.getCarNumber());
                     }
-                }else {
+                } else {
                     mMarkerHashMap = new HashMap<>(0);
                 }
                 point = new LatLng(o.getLatitude(), o.getLongitude());
@@ -144,7 +151,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         NetworkInfo networkInfo = connMgr != null ? connMgr.getActiveNetworkInfo() : null;
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            if(_busesPresenter == null) _busesPresenter = new BusesPresenter(this);
+            if (_busesPresenter == null) _busesPresenter = new BusesPresenter(this);
             _busesPresenter.getBusesData(true, this);
         } else {
             showNoConnectionMessage();
@@ -178,13 +185,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng point;
         for (Object o : objects) {
             if (o.getLatitude() != null && o.getLongitude() != null) {
-                if(mMarkerHashMap != null && !mMarkerHashMap.isEmpty()){
+                if (mMarkerHashMap != null && !mMarkerHashMap.isEmpty()) {
                     Marker m = mMarkerHashMap.get(o.getCarNumber());
-                    if(m != null) {
+                    if (m != null) {
                         m.remove();
                         mMarkerHashMap.remove(o.getCarNumber());
                     }
-                }else {
+                } else {
                     mMarkerHashMap = new HashMap<>(0);
                 }
                 point = new LatLng(o.getLatitude(), o.getLongitude());

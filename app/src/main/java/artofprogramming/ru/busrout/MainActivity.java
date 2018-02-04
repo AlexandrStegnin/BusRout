@@ -24,8 +24,6 @@ import artofprogramming.ru.busrout.model.Object;
 import artofprogramming.ru.busrout.model.Routes;
 import artofprogramming.ru.busrout.model.SnappedPoint;
 import artofprogramming.ru.busrout.model.SnappedPoints;
-import artofprogramming.ru.busrout.presenter.BusesPresenter;
-import artofprogramming.ru.busrout.presenter.IBusesPresenter;
 import artofprogramming.ru.busrout.presenter.IMainPresenter;
 import artofprogramming.ru.busrout.presenter.MainPresenter;
 import artofprogramming.ru.busrout.service.OnItemClickListener;
@@ -46,9 +44,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, IMapsV
     private Routes _routes;
 
     private List<Object> _objects;
-
-    private IBusesPresenter _busesPresenter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +68,26 @@ public class MainActivity extends AppCompatActivity implements IMainView, IMapsV
             _adapter = new RoutAdapter(MainActivity.this, _routes, _listener); //Инициализируем наш адаптер
             _recyclerView.setAdapter(_adapter);   // Устанавливаем адаптер
 
-            if(_busesPresenter == null) _busesPresenter = new BusesPresenter(this);
-            _busesPresenter.getBusesData(false, this);
         } else {
             showNoConnectionMessage();
+            List<Checkpoint> checkpoints = new ArrayList<>(0);
+            Dao<Checkpoint, Integer> checkpointDao = null;
+            try {
+                checkpointDao = getHelper().getCheckpointDao();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                checkpoints = checkpointDao.queryForAll();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if (!checkpoints.isEmpty()) {
+                Routes routes = new Routes();
+                routes.setCheckpoints(checkpoints);
+                setRoutesListViewData(routes);
+            }
         }
     }
 
@@ -102,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, IMapsV
     public void updateRoutesListView(Routes routes) {
         _routes = routes;
         _adapter.notifyDataSetChanged();
-
     }
 
     @Override
@@ -209,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, IMapsV
     }
 
     @Override
-    public void updateBusesListView(List<Object> objects){
+    public void updateBusesListView(List<Object> objects) {
     }
 
     private void createOrUpdateCheckpoints(List<Checkpoint> checkpoints, Dao<Checkpoint, Integer> checkpointDao) {
