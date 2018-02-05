@@ -24,6 +24,8 @@ import artofprogramming.ru.busrout.model.Object;
 import artofprogramming.ru.busrout.model.Routes;
 import artofprogramming.ru.busrout.model.SnappedPoint;
 import artofprogramming.ru.busrout.model.SnappedPoints;
+import artofprogramming.ru.busrout.presenter.BusesPresenter;
+import artofprogramming.ru.busrout.presenter.IBusesPresenter;
 import artofprogramming.ru.busrout.presenter.IMainPresenter;
 import artofprogramming.ru.busrout.presenter.MainPresenter;
 import artofprogramming.ru.busrout.service.OnItemClickListener;
@@ -38,9 +40,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, IMapsV
     private RoutAdapter _adapter;
     public OnItemClickListener _listener;
     private IMainPresenter _presenter;
-
+    private IBusesPresenter _busesPresenter;
     private SnappedPoints _snappedPoints;
-
     private Routes _routes;
 
     private List<Object> _objects;
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, IMapsV
             _adapter = new RoutAdapter(MainActivity.this, _routes, _listener); //Инициализируем наш адаптер
             _recyclerView.setAdapter(_adapter);   // Устанавливаем адаптер
 
+            if (_busesPresenter == null) _busesPresenter = new BusesPresenter(this);
+
+            _busesPresenter.getBusesData(this);
         } else {
             showNoConnectionMessage();
             List<Checkpoint> checkpoints = new ArrayList<>(0);

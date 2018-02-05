@@ -35,7 +35,7 @@ public class BusesPresenter implements IBusesPresenter {
     }
 
     @Override
-    public void getBusesData(boolean isUpdate, Context context) {
+    public void getBusesData(Context context) {
         //Get Observable from our Model layer
         _context = context;
         Observable<Buses> dataObservable = _busRoutesApi.getBuses();
@@ -44,13 +44,10 @@ public class BusesPresenter implements IBusesPresenter {
         //and update our widgets in main thread with new data (observeOn)
         dataObservable.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen(completed -> completed.delay(5, TimeUnit.SECONDS))
                 .subscribe(buses ->
                         {
-                            if (buses == null) _view.setEmptyResponseText("There is no buses");
-                            else if(isUpdate) {
-                                List<Object> objects = buses.getObjects();
-                                _view.updateBusesListView(objects);
+                            if (buses == null) {
+                                _view.setEmptyResponseText("There is no buses");
                             }
                             else {
                                 List<Object> objects = buses.getObjects();
@@ -74,6 +71,48 @@ public class BusesPresenter implements IBusesPresenter {
                             }
 
                             _view.setBusesListViewData(objects);
+                        }
+                );
+    }
+
+    @Override
+    public void updateBusLocation(Context context) {
+        //Get Observable from our Model layer
+        _context = context;
+        Observable<Buses> dataObservable = _busRoutesApi.getBuses();
+
+        //Really cool thing in RxAndroid is Schedulers. It helps us execute Network requests in new thread (subscribeOn)
+        //and update our widgets in main thread with new data (observeOn)
+        dataObservable.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .repeatWhen(completed -> completed.delay(5, TimeUnit.SECONDS))
+                .subscribe(buses ->
+                        {
+                            if (buses == null) {
+                                _view.setEmptyResponseText("There is no buses");
+                            }
+                            else {
+                                List<Object> objects = buses.getObjects();
+                                _view.updateBusesListView(objects);
+                            }
+                        },
+                        err -> {
+                            Dao<Object, Integer> objectDao = null;
+                            List<Object> objects = new ArrayList<>(0);
+                            try {
+                                objectDao = getHelper().getObjectDao();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                if (objectDao != null) {
+                                    objects = objectDao.queryForAll();
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+
+                            _view.updateBusesListView(objects);
                         }
                 );
     }

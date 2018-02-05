@@ -152,7 +152,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (networkInfo != null && networkInfo.isConnected()) {
             if (_busesPresenter == null) _busesPresenter = new BusesPresenter(this);
-            _busesPresenter.getBusesData(true, this);
+            _busesPresenter.updateBusLocation(this);
         } else {
             showNoConnectionMessage();
         }

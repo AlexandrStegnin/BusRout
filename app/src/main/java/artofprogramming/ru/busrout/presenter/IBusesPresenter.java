@@ -7,5 +7,6 @@ import android.content.Context;
  */
 
 public interface IBusesPresenter {
-    void getBusesData(boolean isUpdate, Context context);
+    void getBusesData(Context context);
+    void updateBusLocation(Context context);
 }
